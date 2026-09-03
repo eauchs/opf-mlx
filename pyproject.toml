@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opf-mlx"
+version = "0.1.0"
+description = "Native MLX port of OpenAI Privacy Filter for Apple silicon."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = [
+  "mlx>=0.29",
+  "numpy",
+  "safetensors",
+  "tiktoken",
+  "huggingface_hub",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+  "torch",
+  "opf @ git+https://github.com/openai/privacy-filter@main",
+]
+
+[project.scripts]
+opf-mlx = "opf_mlx.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["opf_mlx*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "D"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
