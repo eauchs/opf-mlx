@@ -1,0 +1,134 @@
+{
+  "host": {
+    "chip": "Apple M3 Max",
+    "memory_gb": "128",
+    "os": "Darwin 25.4.0",
+    "python": "3.12.12"
+  },
+  "runs": {
+    "MLX bf16": {
+      "checkpoint": "~/.opf/privacy_filter",
+      "moe_precision": "checkpoint",
+      "mlx": {
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 2.23854787502205,
+          "tokens_per_s": 14638.060845438577,
+          "tokens_per_s_best": 15310.432181872446,
+          "peak_memory_gb": 4.406468857079744
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 0.19710912503069267,
+          "tokens_per_s": 14717.735668240999,
+          "messages_per_s": 324.6932377688466,
+          "peak_memory_gb": 3.517697410658002
+        },
+        "batch_end_to_end": {
+          "seconds_median": 0.19993741705548018,
+          "messages_per_s": 320.1001640540389
+        }
+      },
+      "torch": {
+        "available": true,
+        "backend": "mps",
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 195.63181549997535,
+          "tokens_per_s": 167.49831777747895,
+          "peak_memory_gb": 13.085494995117188
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 18.79942066699732,
+          "tokens_per_s": 154.313265891898,
+          "messages_per_s": 3.404360226501714,
+          "peak_memory_gb": 13.085525512695312
+        }
+      },
+      "speedup": {
+        "document": 87.39228572364053,
+        "batch": 95.37569944603015
+      }
+    },
+    "MLX bf16, float32 experts": {
+      "checkpoint": "~/.opf/privacy_filter",
+      "moe_precision": "float32",
+      "mlx": {
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 3.3083842079504393,
+          "tokens_per_s": 9904.532829426103,
+          "tokens_per_s_best": 10262.262962891735,
+          "peak_memory_gb": 10.706567268818617
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 0.3067403750028461,
+          "tokens_per_s": 9457.509465368172,
+          "messages_per_s": 208.64550354483387,
+          "peak_memory_gb": 8.913943517953157
+        },
+        "batch_end_to_end": {
+          "seconds_median": 0.31650112505303696,
+          "messages_per_s": 202.21097157008634
+        }
+      }
+    },
+    "MLX mlx-8bit": {
+      "checkpoint": "~/.opf/mlx-8bit",
+      "moe_precision": "checkpoint",
+      "mlx": {
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 2.794998832978308,
+          "tokens_per_s": 11723.797381726603,
+          "tokens_per_s_best": 11822.111105201539,
+          "peak_memory_gb": 5.890075769275427
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 0.2584979999810457,
+          "tokens_per_s": 11222.523966192059,
+          "messages_per_s": 247.58412059162075,
+          "peak_memory_gb": 4.9760433454066515
+        },
+        "batch_end_to_end": {
+          "seconds_median": 0.2773026250069961,
+          "messages_per_s": 230.79478601540586
+        }
+      }
+    },
+    "MLX mlx-4bit": {
+      "checkpoint": "~/.opf/mlx-4bit",
+      "moe_precision": "checkpoint",
+      "mlx": {
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 2.6130157919833437,
+          "tokens_per_s": 12540.29925901377,
+          "tokens_per_s_best": 12611.74770326054,
+          "peak_memory_gb": 5.243609584867954
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 0.33854912500828505,
+          "tokens_per_s": 8568.918912222874,
+          "messages_per_s": 189.04198910109065,
+          "peak_memory_gb": 4.446514153853059
+        },
+        "batch_end_to_end": {
+          "seconds_median": 0.331928749976214,
+          "messages_per_s": 192.81246353196653
+        }
+      }
+    }
+  },
+  "command": "caffeinate -dimsu python scripts/bench.py --compare-torch --quantized ~/.opf/mlx-8bit --quantized ~/.opf/mlx-4bit --repeats 5",
+  "date": "2026-09-03"
+}

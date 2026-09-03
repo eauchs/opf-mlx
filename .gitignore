@@ -8,4 +8,4 @@ build/
 dist/
 mlx_model/
 mlx-*bit/
-bench.json
+/bench.json
