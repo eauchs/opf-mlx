@@ -32,9 +32,10 @@ from opf._core.runtime import load_inference_runtime, predict_text  # noqa: E402
 SAMPLES_PATH = Path(__file__).parent / "samples" / "samples.json"
 SAMPLES = json.loads(SAMPLES_PATH.read_text(encoding="utf-8"))
 
-# One sample out of fifty is decided by a three-way near-tie between
-# private_email, private_phone and secret; the reference itself labels it
-# differently on CPU and on MPS.
+# All fifty currently match, but this is a noise-floor assertion rather than a
+# target: one sample is decided by a three-way near-tie between private_email,
+# private_phone and secret, and the reference itself resolves it differently on
+# CPU and on MPS.
 BF16_MIN_MATCHING_SPANS = 49
 
 MODEL_CARD_EXAMPLES = [

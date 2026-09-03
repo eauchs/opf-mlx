@@ -15,22 +15,22 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 1.396783875010442,
-          "tokens_per_s": 23459.606447529353,
-          "tokens_per_s_best": 23474.729991928285,
-          "peak_memory_gb": 4.39876963198185
+          "seconds_median": 0.5763360419659875,
+          "tokens_per_s": 56855.718910485564,
+          "tokens_per_s_best": 57190.95752425994,
+          "peak_memory_gb": 4.4559652134776115
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.12009508296614513,
-          "tokens_per_s": 24155.859909916493,
-          "messages_per_s": 532.9110769509326,
-          "peak_memory_gb": 3.517697410658002
+          "seconds_median": 0.056304958008695394,
+          "tokens_per_s": 51522.99375752997,
+          "messages_per_s": 1136.667218366742,
+          "peak_memory_gb": 3.48082553781569
         },
         "batch_end_to_end": {
-          "seconds_median": 0.13507891702465713,
-          "messages_per_s": 473.79710623766346
+          "seconds_median": 0.07030391698936,
+          "messages_per_s": 910.3333461446529
         }
       }
     },
@@ -40,22 +40,22 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.264009041013196,
-          "tokens_per_s": 14473.440435262382,
-          "tokens_per_s_best": 14692.888893723932,
-          "peak_memory_gb": 8.0372672714293
+          "seconds_median": 0.8390447499696165,
+          "tokens_per_s": 39053.93603998666,
+          "tokens_per_s_best": 42270.4386556106,
+          "peak_memory_gb": 8.115755319595337
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.24128008296247572,
-          "tokens_per_s": 12023.371197411136,
-          "messages_per_s": 265.25189818487166,
-          "peak_memory_gb": 6.244643796235323
+          "seconds_median": 0.10390599997481331,
+          "tokens_per_s": 27919.46567766249,
+          "messages_per_s": 615.9413317374697,
+          "peak_memory_gb": 6.240730907768011
         },
         "batch_end_to_end": {
-          "seconds_median": 0.24267333297757432,
-          "messages_per_s": 263.7290188201862
+          "seconds_median": 0.10376066697062925,
+          "messages_per_s": 616.8040536797629
         }
       }
     },
@@ -65,22 +65,22 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.4301856250385754,
-          "tokens_per_s": 13483.743654141588,
-          "tokens_per_s_best": 14093.231280403104,
-          "peak_memory_gb": 3.223775375634432
+          "seconds_median": 0.6944126249873079,
+          "tokens_per_s": 47188.08215878695,
+          "tokens_per_s_best": 47659.02159965114,
+          "peak_memory_gb": 3.393022708594799
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.2395922080031596,
-          "tokens_per_s": 12108.073230669268,
-          "messages_per_s": 267.1205400768125,
-          "peak_memory_gb": 2.3067446518689394
+          "seconds_median": 0.07095791702158749,
+          "tokens_per_s": 40883.38724933865,
+          "messages_per_s": 901.9430485893394,
+          "peak_memory_gb": 2.2945920173078775
         },
         "batch_end_to_end": {
-          "seconds_median": 0.23347291600657627,
-          "messages_per_s": 274.1217315253702
+          "seconds_median": 0.08145341702038422,
+          "messages_per_s": 785.7251707928177
         }
       }
     },
@@ -90,22 +90,22 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.527445624989923,
-          "tokens_per_s": 12964.868433175747,
-          "tokens_per_s_best": 14517.678343643001,
-          "peak_memory_gb": 2.5747369192540646
+          "seconds_median": 0.6456787080387585,
+          "tokens_per_s": 50749.69887040633,
+          "tokens_per_s_best": 51861.61712725398,
+          "peak_memory_gb": 2.7427083775401115
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.23172899999190122,
-          "tokens_per_s": 12518.9337549525,
-          "messages_per_s": 276.18468125369185,
-          "peak_memory_gb": 1.7772144321352243
+          "seconds_median": 0.06512716598808765,
+          "tokens_per_s": 44543.62409275753,
+          "messages_per_s": 982.6928445144715,
+          "peak_memory_gb": 1.7466258388012648
         },
         "batch_end_to_end": {
-          "seconds_median": 0.23877108399756253,
-          "messages_per_s": 268.0391567039723
+          "seconds_median": 0.07849929196527228,
+          "messages_per_s": 815.2939777891665
         }
       }
     },
@@ -115,22 +115,22 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.156793917005416,
-          "tokens_per_s": 15192.921188082948,
-          "tokens_per_s_best": 15522.338188514303,
-          "peak_memory_gb": 4.405609967187047
+          "seconds_median": 0.6023415839881636,
+          "tokens_per_s": 54401.025715408534,
+          "tokens_per_s_best": 56008.545026614614,
+          "peak_memory_gb": 4.4559652134776115
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.1818485000403598,
-          "tokens_per_s": 15952.839860412083,
-          "messages_per_s": 351.9413137078157,
-          "peak_memory_gb": 3.517697410658002
+          "seconds_median": 0.060943374992348254,
+          "tokens_per_s": 47601.564573085016,
+          "messages_per_s": 1050.15516465958,
+          "peak_memory_gb": 3.48082553781569
         },
         "batch_end_to_end": {
-          "seconds_median": 0.2004509999533184,
-          "messages_per_s": 319.2800236212566
+          "seconds_median": 0.07524108397774398,
+          "messages_per_s": 850.5991224014124
         }
       },
       "torch": {
@@ -138,46 +138,54 @@
         "backend": "mps",
         "document": {
           "tokens": 32768,
-          "seconds_median": 164.3219632919645,
-          "tokens_per_s": 199.4133915122373,
-          "driver_memory_gb": 13.085494995117188
+          "seconds_median": 161.69185674999608,
+          "tokens_per_s": 202.65708279091052,
+          "driver_memory_gb": 12.162948608398438
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 16.37440550001338,
-          "tokens_per_s": 177.16673744262835,
-          "messages_per_s": 3.9085388474071747,
-          "driver_memory_gb": 13.085525512695312
+          "seconds_median": 18.09861666604411,
+          "tokens_per_s": 160.28849350916076,
+          "messages_per_s": 3.536181863008028,
+          "driver_memory_gb": 12.163955688476562
         }
       },
       "speedup": {
-        "document": 76.18806877947618,
-        "batch": 90.04421535717486
+        "document": 268.43880789272123,
+        "batch": 296.9743088287526
       }
     }
   },
   "head_to_head_vs_mlx_embeddings": {
-    "method": "minimum of 3 runs, one fresh process per implementation, identical inputs",
-    "mlx_embeddings_0_1_1": {
-      "2048": 44333,
-      "8192": 27551,
-      "32768": 9439,
-      "32768_peak_gb": 10.62,
-      "batch64_tok_s": 47840,
-      "batch64_msg_s": 1055,
-      "labels_vs_reference": "48/50",
-      "max_logit_diff": 9.125
+    "method": "mlx-embeddings 0.1.1 (git main, without PR #76); alternating processes, 3 rounds, median of 5 passes per round, medians across rounds; random token ids for the length sweep",
+    "tokens_per_s": {
+      "2048": {
+        "mlx_embeddings": 44153,
+        "opf_mlx": 52693
+      },
+      "8192": {
+        "mlx_embeddings": 27567,
+        "opf_mlx": 56832
+      },
+      "32768": {
+        "mlx_embeddings": 8165,
+        "opf_mlx": 41574
+      }
     },
-    "opf_mlx": {
-      "2048": 23300,
-      "8192": 23250,
-      "32768": 22890,
-      "32768_peak_gb": 4.41,
-      "batch64_tok_s": 23891,
-      "batch64_msg_s": 527,
-      "labels_vs_reference": "48/50",
-      "max_logit_diff": 10.125
+    "peak_gb_32768": {
+      "mlx_embeddings": 10.62,
+      "opf_mlx": 4.46
+    },
+    "batch64": {
+      "mlx_embeddings": {
+        "tokens_per_s": 48543,
+        "messages_per_s": 1071
+      },
+      "opf_mlx": {
+        "tokens_per_s": 52153,
+        "messages_per_s": 1151
+      }
     }
   }
 }

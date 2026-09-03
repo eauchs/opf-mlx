@@ -23,6 +23,8 @@ __all__ = [
     "RMSNorm",
     "RotaryEmbedding",
     "Attention",
+    "banded_attention",
+    "banded_attention_reference",
     "SwitchLinear",
     "SparseMoeBlock",
     "TransformerBlock",
@@ -66,6 +68,8 @@ class ModelArgs:
     rms_norm_eps: float = 1e-5
     encoding: str = "o200k_base"
     attention_chunk_size: int = 256
+    # Run the unfused reference attention instead of the tiled fast path.
+    unfused_attention: bool = False
     quantization: dict[str, Any] | None = field(default=None)
 
     def __post_init__(self) -> None:
@@ -201,26 +205,37 @@ def banded_attention(
     *,
     left: int,
     right: int,
+    scale: float = 1.0,
     key_mask: mx.array | None = None,
     chunk_size: int = 512,
 ) -> mx.array:
     """Attend over an asymmetric local band with a per-head attention sink.
 
+    The band is resolved one query tile at a time rather than as a dense
+    ``[T, T]`` mask, which would be O(T^2): at 32k tokens that mask alone costs
+    more than the weights. Every query in a tile can reach only keys within the
+    band, so the tile carries all of them and each softmax, sink included, is
+    exactly the one a dense pass would compute.
+
     Args:
-        q: Queries shaped ``[B, n_kv, q_per_kv, T, head_dim]``.
-        k: Keys shaped ``[B, n_kv, 1, T, head_dim]``.
-        v: Values shaped ``[B, n_kv, 1, T, head_dim]``.
-        sinks: Sink logits in natural log space, shaped ``[n_kv, q_per_kv]``.
+        q: Queries shaped ``[B, n_heads, T, head_dim]``.
+        k: Keys shaped ``[B, n_kv_heads, T, head_dim]``.
+        v: Values shaped ``[B, n_kv_heads, T, head_dim]``.
+        sinks: Per-head sink logits in natural log space, shaped ``[n_heads]``.
         left: Number of past tokens each query may attend to.
         right: Number of future tokens each query may attend to.
+        scale: Multiplier applied to the attention scores.
         key_mask: Optional ``[B, T]`` boolean mask of valid key positions.
         chunk_size: Number of query positions processed per tile.
 
     Returns:
-        Context vectors shaped ``[B, n_kv, q_per_kv, T, head_dim]``.
+        Context vectors shaped ``[B, n_heads, T, head_dim]``.
     """
-    num_tokens = q.shape[3]
-    sink_column = sinks[None, :, :, None, None]
+    num_tokens = q.shape[2]
+    dtype = q.dtype
+    sinks = sinks.astype(dtype)
+    keep = mx.array(0.0, dtype)
+    drop = mx.array(-mx.inf, dtype)
     outputs: list[mx.array] = []
 
     for start in range(0, num_tokens, chunk_size):
@@ -228,25 +243,72 @@ def banded_attention(
         key_start = max(0, start - left)
         key_end = min(num_tokens, end + right)
 
-        keys = k[..., key_start:key_end, :]
-        values = v[..., key_start:key_end, :]
-        scores = mx.matmul(q[..., start:end, :], mx.swapaxes(keys, -1, -2))
-        scores = scores.astype(mx.float32)
-
         query_pos = mx.arange(start, end)[:, None]
         key_pos = mx.arange(key_start, key_end)[None, :]
-        valid = (key_pos >= query_pos - left) & (key_pos <= query_pos + right)
-        valid = valid[None, None, None, :, :]
+        band = (key_pos >= query_pos - left) & (key_pos <= query_pos + right)
+        mask = mx.where(band, keep, drop)[None, None, :, :]
         if key_mask is not None:
-            valid = valid & key_mask[:, None, None, None, key_start:key_end]
+            valid = mx.where(key_mask[:, key_start:key_end], keep, drop)
+            mask = mask + valid[:, None, None, :]
 
-        scores = mx.where(valid, scores, mx.array(-mx.inf, mx.float32))
-        sink = mx.broadcast_to(sink_column, (*scores.shape[:-1], 1))
-        weights = mx.softmax(mx.concatenate([scores, sink], axis=-1), axis=-1)
-        weights = weights[..., :-1].astype(v.dtype)
-        outputs.append(mx.matmul(weights, values))
+        outputs.append(
+            mx.fast.scaled_dot_product_attention(
+                q[:, :, start:end, :],
+                k[:, :, key_start:key_end, :],
+                v[:, :, key_start:key_end, :],
+                scale=scale,
+                mask=mask,
+                sinks=sinks,
+            )
+        )
 
-    return outputs[0] if len(outputs) == 1 else mx.concatenate(outputs, axis=-2)
+    return outputs[0] if len(outputs) == 1 else mx.concatenate(outputs, axis=2)
+
+
+def banded_attention_reference(
+    q: mx.array,
+    k: mx.array,
+    v: mx.array,
+    sinks: mx.array,
+    *,
+    left: int,
+    right: int,
+    scale: float = 1.0,
+    key_mask: mx.array | None = None,
+) -> mx.array:
+    """Unfused banded attention, written to mirror the reference implementation.
+
+    Scores are accumulated in the input dtype and the softmax runs in float32,
+    exactly as the PyTorch reference does. This is quadratic in the sequence
+    length and is kept as an executable specification for
+    :func:`banded_attention`, which the tests check it against; it is not used
+    at inference time.
+
+    Args and returns match :func:`banded_attention`.
+    """
+    batch, n_heads, num_tokens, head_dim = q.shape
+    n_kv_heads = k.shape[1]
+    group = n_heads // n_kv_heads
+
+    grouped_q = q.reshape(batch, n_kv_heads, group, num_tokens, head_dim)
+    grouped_k = k[:, :, None]
+    grouped_v = v[:, :, None]
+
+    scores = mx.matmul(grouped_q, mx.swapaxes(grouped_k, -1, -2)).astype(mx.float32)
+    scores = scores * scale
+
+    query_pos = mx.arange(num_tokens)[:, None]
+    key_pos = mx.arange(num_tokens)[None, :]
+    valid = ((key_pos >= query_pos - left) & (key_pos <= query_pos + right))[None, None, None]
+    if key_mask is not None:
+        valid = valid & key_mask[:, None, None, None, :]
+    scores = mx.where(valid, scores, mx.array(-mx.inf, mx.float32))
+
+    sink_column = sinks.astype(mx.float32).reshape(n_kv_heads, group)[None, :, :, None, None]
+    sink_column = mx.broadcast_to(sink_column, (*scores.shape[:-1], 1))
+    weights = mx.softmax(mx.concatenate([scores, sink_column], axis=-1), axis=-1)
+    context = mx.matmul(weights[..., :-1].astype(v.dtype), grouped_v)
+    return context.reshape(batch, n_heads, num_tokens, head_dim)
 
 
 class Attention(nn.Module):
@@ -282,34 +344,36 @@ class Attention(nn.Module):
         q_dim = self.n_heads * self.head_dim
         kv_dim = self.n_kv_heads * self.head_dim
         q = qkv[..., :q_dim].reshape(batch, num_tokens, self.n_heads, self.head_dim)
-        k = qkv[..., q_dim : q_dim + kv_dim].reshape(
-            batch, num_tokens, self.n_kv_heads, self.head_dim
-        )
-        v = qkv[..., q_dim + kv_dim :].reshape(batch, num_tokens, self.n_kv_heads, self.head_dim)
+        k = qkv[..., q_dim : q_dim + kv_dim]
+        k = k.reshape(batch, num_tokens, self.n_kv_heads, self.head_dim)
+        v = qkv[..., q_dim + kv_dim :]
+        v = v.reshape(batch, num_tokens, self.n_kv_heads, self.head_dim)
 
         q, k = self.rope(q, k)
-        q = q * self.qk_scale
-        k = k * self.qk_scale
-
-        # [B, n_kv, q_per_kv, T, D] and [B, n_kv, 1, T, D]; matmul broadcasts the group axis.
-        q = q.reshape(batch, num_tokens, self.n_kv_heads, self.q_per_kv, self.head_dim)
-        q = q.transpose(0, 2, 3, 1, 4)
-        k = k.transpose(0, 2, 1, 3)[:, :, None]
-        v = v.transpose(0, 2, 1, 3)[:, :, None]
+        # The reference scales both sides rather than the scores, so the score
+        # multiplier stays 1 and the rounding matches.
+        q = (q * self.qk_scale).transpose(0, 2, 1, 3)
+        k = (k * self.qk_scale).transpose(0, 2, 1, 3)
+        v = v.transpose(0, 2, 1, 3)
 
         # Checkpoint sinks are stored in log2 space.
-        sinks = (self.sinks * _LN2).reshape(self.n_kv_heads, self.q_per_kv)
-        context = banded_attention(
-            q,
-            k,
-            v,
-            sinks,
-            left=self.left,
-            right=self.right,
-            key_mask=key_mask,
-            chunk_size=self.args.attention_chunk_size,
-        )
-        context = context.transpose(0, 3, 1, 2, 4).reshape(batch, num_tokens, q_dim)
+        sinks = self.sinks * _LN2
+        if self.args.unfused_attention:
+            context = banded_attention_reference(
+                q, k, v, sinks, left=self.left, right=self.right, key_mask=key_mask
+            )
+        else:
+            context = banded_attention(
+                q,
+                k,
+                v,
+                sinks,
+                left=self.left,
+                right=self.right,
+                key_mask=key_mask,
+                chunk_size=self.args.attention_chunk_size,
+            )
+        context = context.transpose(0, 2, 1, 3).reshape(batch, num_tokens, q_dim)
         return self.o_proj(context)
 
 
@@ -335,19 +399,12 @@ class SwitchLinear(nn.Module):
         """Dtype this layer's inputs must be cast to."""
         return self.weight.dtype
 
-    def __call__(
-        self,
-        x: mx.array,
-        indices: mx.array,
-        lhs_indices: mx.array | None = None,
-        sorted_indices: bool = False,
-    ) -> mx.array:
+    def __call__(self, x: mx.array, indices: mx.array, sorted_indices: bool = False) -> mx.array:
         """Project ``x`` through the experts named by ``indices``.
 
         Args:
-            x: Inputs with a trailing ``[..., 1, in]`` matrix shape.
-            indices: Expert id per output row.
-            lhs_indices: Optional row of ``x`` feeding each output row.
+            x: One ``[..., 1, in]`` row per routed token, already in expert order.
+            indices: Expert id per row of ``x``.
             sorted_indices: Whether ``indices`` is sorted, which lets MLX run one
                 grouped matmul per expert instead of one per routed token.
 
@@ -357,7 +414,6 @@ class SwitchLinear(nn.Module):
         y = mx.gather_mm(
             x,
             mx.swapaxes(self.weight, -1, -2),
-            lhs_indices=lhs_indices,
             rhs_indices=indices,
             sorted_indices=sorted_indices,
         )
@@ -411,20 +467,13 @@ class QuantizedSwitchLinear(nn.Module):
         """
         return self.scales.dtype
 
-    def __call__(
-        self,
-        x: mx.array,
-        indices: mx.array,
-        lhs_indices: mx.array | None = None,
-        sorted_indices: bool = False,
-    ) -> mx.array:
+    def __call__(self, x: mx.array, indices: mx.array, sorted_indices: bool = False) -> mx.array:
         """Project ``x`` through the quantized experts named by ``indices``."""
         y = mx.gather_qmm(
             x,
             self.weight,
             self.scales,
             self.biases,
-            lhs_indices=lhs_indices,
             rhs_indices=indices,
             transpose=True,
             group_size=self.group_size,
@@ -465,13 +514,16 @@ class SparseMoeBlock(nn.Module):
         weights = mx.softmax(mx.take_along_axis(gates, indices, axis=-1), axis=-1)
 
         # Routed tokens are grouped by expert so that each expert runs as a single
-        # matmul over its whole caseload rather than one matmul per token.
+        # matmul over its whole caseload rather than one matmul per token. The rows
+        # are gathered into expert order up front: letting gather_mm do that
+        # indexing itself costs 4x more here, 24.2 ms against 5.9 ms per layer on
+        # an 8k-token document.
         order = mx.argsort(indices.reshape(-1))
         experts = indices.reshape(-1)[order]
         rows = order // top_k
 
-        h = t.astype(self.w1.input_dtype)[:, None, :]
-        h = self.w1(h, experts, lhs_indices=rows, sorted_indices=True)
+        h = t.astype(self.w1.input_dtype)[rows][:, None, :]
+        h = self.w1(h, experts, sorted_indices=True)
         h = swiglu(h, self.swiglu_limit)
         h = self.w2(h.astype(self.w2.input_dtype), experts, sorted_indices=True)
 
