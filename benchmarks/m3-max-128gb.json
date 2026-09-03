@@ -1,10 +1,13 @@
 {
+  "date": "2026-09-03",
   "host": {
     "chip": "Apple M3 Max",
     "memory_gb": "128",
     "os": "Darwin 25.4.0",
-    "python": "3.12.12"
+    "python": "3.12.12",
+    "mlx": "0.32.2"
   },
+  "method": "median of 5 timed runs after one warm-up, one variant per process, under caffeinate",
   "runs": {
     "MLX bf16": {
       "checkpoint": "~/.opf/privacy_filter",
@@ -12,45 +15,23 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.23854787502205,
-          "tokens_per_s": 14638.060845438577,
-          "tokens_per_s_best": 15310.432181872446,
-          "peak_memory_gb": 4.406468857079744
+          "seconds_median": 1.396783875010442,
+          "tokens_per_s": 23459.606447529353,
+          "tokens_per_s_best": 23474.729991928285,
+          "peak_memory_gb": 4.39876963198185
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.19710912503069267,
-          "tokens_per_s": 14717.735668240999,
-          "messages_per_s": 324.6932377688466,
+          "seconds_median": 0.12009508296614513,
+          "tokens_per_s": 24155.859909916493,
+          "messages_per_s": 532.9110769509326,
           "peak_memory_gb": 3.517697410658002
         },
         "batch_end_to_end": {
-          "seconds_median": 0.19993741705548018,
-          "messages_per_s": 320.1001640540389
+          "seconds_median": 0.13507891702465713,
+          "messages_per_s": 473.79710623766346
         }
-      },
-      "torch": {
-        "available": true,
-        "backend": "mps",
-        "document": {
-          "tokens": 32768,
-          "seconds_median": 195.63181549997535,
-          "tokens_per_s": 167.49831777747895,
-          "peak_memory_gb": 13.085494995117188
-        },
-        "batch": {
-          "messages": 64,
-          "tokens": 2901,
-          "seconds_median": 18.79942066699732,
-          "tokens_per_s": 154.313265891898,
-          "messages_per_s": 3.404360226501714,
-          "peak_memory_gb": 13.085525512695312
-        }
-      },
-      "speedup": {
-        "document": 87.39228572364053,
-        "batch": 95.37569944603015
       }
     },
     "MLX bf16, float32 experts": {
@@ -59,76 +40,144 @@
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 3.3083842079504393,
-          "tokens_per_s": 9904.532829426103,
-          "tokens_per_s_best": 10262.262962891735,
-          "peak_memory_gb": 10.706567268818617
+          "seconds_median": 2.264009041013196,
+          "tokens_per_s": 14473.440435262382,
+          "tokens_per_s_best": 14692.888893723932,
+          "peak_memory_gb": 8.0372672714293
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.3067403750028461,
-          "tokens_per_s": 9457.509465368172,
-          "messages_per_s": 208.64550354483387,
-          "peak_memory_gb": 8.913943517953157
+          "seconds_median": 0.24128008296247572,
+          "tokens_per_s": 12023.371197411136,
+          "messages_per_s": 265.25189818487166,
+          "peak_memory_gb": 6.244643796235323
         },
         "batch_end_to_end": {
-          "seconds_median": 0.31650112505303696,
-          "messages_per_s": 202.21097157008634
+          "seconds_median": 0.24267333297757432,
+          "messages_per_s": 263.7290188201862
         }
       }
     },
-    "MLX mlx-8bit": {
+    "MLX 8-bit": {
       "checkpoint": "~/.opf/mlx-8bit",
       "moe_precision": "checkpoint",
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.794998832978308,
-          "tokens_per_s": 11723.797381726603,
-          "tokens_per_s_best": 11822.111105201539,
-          "peak_memory_gb": 5.890075769275427
+          "seconds_median": 2.4301856250385754,
+          "tokens_per_s": 13483.743654141588,
+          "tokens_per_s_best": 14093.231280403104,
+          "peak_memory_gb": 3.223775375634432
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.2584979999810457,
-          "tokens_per_s": 11222.523966192059,
-          "messages_per_s": 247.58412059162075,
-          "peak_memory_gb": 4.9760433454066515
+          "seconds_median": 0.2395922080031596,
+          "tokens_per_s": 12108.073230669268,
+          "messages_per_s": 267.1205400768125,
+          "peak_memory_gb": 2.3067446518689394
         },
         "batch_end_to_end": {
-          "seconds_median": 0.2773026250069961,
-          "messages_per_s": 230.79478601540586
+          "seconds_median": 0.23347291600657627,
+          "messages_per_s": 274.1217315253702
         }
       }
     },
-    "MLX mlx-4bit": {
+    "MLX 4-bit": {
       "checkpoint": "~/.opf/mlx-4bit",
       "moe_precision": "checkpoint",
       "mlx": {
         "document": {
           "tokens": 32768,
-          "seconds_median": 2.6130157919833437,
-          "tokens_per_s": 12540.29925901377,
-          "tokens_per_s_best": 12611.74770326054,
-          "peak_memory_gb": 5.243609584867954
+          "seconds_median": 2.527445624989923,
+          "tokens_per_s": 12964.868433175747,
+          "tokens_per_s_best": 14517.678343643001,
+          "peak_memory_gb": 2.5747369192540646
         },
         "batch": {
           "messages": 64,
           "tokens": 2901,
-          "seconds_median": 0.33854912500828505,
-          "tokens_per_s": 8568.918912222874,
-          "messages_per_s": 189.04198910109065,
-          "peak_memory_gb": 4.446514153853059
+          "seconds_median": 0.23172899999190122,
+          "tokens_per_s": 12518.9337549525,
+          "messages_per_s": 276.18468125369185,
+          "peak_memory_gb": 1.7772144321352243
         },
         "batch_end_to_end": {
-          "seconds_median": 0.331928749976214,
-          "messages_per_s": 192.81246353196653
+          "seconds_median": 0.23877108399756253,
+          "messages_per_s": 268.0391567039723
         }
+      }
+    },
+    "MLX bf16 + PyTorch-MPS, same process": {
+      "checkpoint": "~/.opf/privacy_filter",
+      "moe_precision": "checkpoint",
+      "mlx": {
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 2.156793917005416,
+          "tokens_per_s": 15192.921188082948,
+          "tokens_per_s_best": 15522.338188514303,
+          "peak_memory_gb": 4.405609967187047
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 0.1818485000403598,
+          "tokens_per_s": 15952.839860412083,
+          "messages_per_s": 351.9413137078157,
+          "peak_memory_gb": 3.517697410658002
+        },
+        "batch_end_to_end": {
+          "seconds_median": 0.2004509999533184,
+          "messages_per_s": 319.2800236212566
+        }
+      },
+      "torch": {
+        "available": true,
+        "backend": "mps",
+        "document": {
+          "tokens": 32768,
+          "seconds_median": 164.3219632919645,
+          "tokens_per_s": 199.4133915122373,
+          "driver_memory_gb": 13.085494995117188
+        },
+        "batch": {
+          "messages": 64,
+          "tokens": 2901,
+          "seconds_median": 16.37440550001338,
+          "tokens_per_s": 177.16673744262835,
+          "messages_per_s": 3.9085388474071747,
+          "driver_memory_gb": 13.085525512695312
+        }
+      },
+      "speedup": {
+        "document": 76.18806877947618,
+        "batch": 90.04421535717486
       }
     }
   },
-  "command": "caffeinate -dimsu python scripts/bench.py --compare-torch --quantized ~/.opf/mlx-8bit --quantized ~/.opf/mlx-4bit --repeats 5",
-  "date": "2026-09-03"
+  "head_to_head_vs_mlx_embeddings": {
+    "method": "minimum of 3 runs, one fresh process per implementation, identical inputs",
+    "mlx_embeddings_0_1_1": {
+      "2048": 44333,
+      "8192": 27551,
+      "32768": 9439,
+      "32768_peak_gb": 10.62,
+      "batch64_tok_s": 47840,
+      "batch64_msg_s": 1055,
+      "labels_vs_reference": "48/50",
+      "max_logit_diff": 9.125
+    },
+    "opf_mlx": {
+      "2048": 23300,
+      "8192": 23250,
+      "32768": 22890,
+      "32768_peak_gb": 4.41,
+      "batch64_tok_s": 23891,
+      "batch64_msg_s": 527,
+      "labels_vs_reference": "48/50",
+      "max_logit_diff": 10.125
+    }
+  }
 }
